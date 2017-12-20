@@ -6,10 +6,12 @@ using RestSharp;
 using System;
 using ZyronatorCore.Models;
 using RestSharp.Deserializers;
+using Microsoft.AspNetCore.Cors;
 
 namespace ZyronatorCore.Controllers
 {
     [Route("api/discogsuserlists")]
+    [EnableCors("CorsGetPolicy")]
     public class DiscogsUserListsController : Controller
     {
         private readonly RestClient _restClient;

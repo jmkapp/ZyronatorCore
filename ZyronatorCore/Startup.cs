@@ -26,6 +26,14 @@ namespace ZyronatorCore
         {
             services.Configure<DiscogsApiSettings>(Configuration.GetSection("DiscogsApi"));
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsGetPolicy",
+                    builder => builder.AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .AllowCredentials());
+            });
+
             services.AddMvc();
         }
 
