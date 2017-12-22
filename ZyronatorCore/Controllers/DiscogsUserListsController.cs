@@ -4,9 +4,9 @@ using ZyronatorCore.Settings;
 using Microsoft.Extensions.Options;
 using RestSharp;
 using System;
-using ZyronatorCore.Models;
 using RestSharp.Deserializers;
 using Microsoft.AspNetCore.Cors;
+using DiscogsApiModels;
 
 namespace ZyronatorCore.Controllers
 {
@@ -41,7 +41,7 @@ namespace ZyronatorCore.Controllers
             IRestResponse response = _restClient.Execute(request);
 
             JsonDeserializer deserializer = new JsonDeserializer();
-            var rootUserLists = deserializer.Deserialize<RootUserLists>(response);
+            var rootUserLists = deserializer.Deserialize<DiscogsUserLists>(response);
 
             userLists.AddRange(rootUserLists.Lists);
 
@@ -57,7 +57,7 @@ namespace ZyronatorCore.Controllers
 
                 response = _restClient.Execute(request);
 
-                rootUserLists = deserializer.Deserialize<RootUserLists>(response);
+                rootUserLists = deserializer.Deserialize<DiscogsUserLists>(response);
 
                 userLists.AddRange(rootUserLists.Lists);
 
@@ -67,7 +67,7 @@ namespace ZyronatorCore.Controllers
             return userLists;
         }
 
-        private bool NextPage(RootUserLists rootUserLists)
+        private bool NextPage(DiscogsUserLists rootUserLists)
         {
             int pages = rootUserLists.Pagination.Pages;
             int page = rootUserLists.Pagination.Page;

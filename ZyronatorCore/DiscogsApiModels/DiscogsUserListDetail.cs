@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ZyronatorCore.Models
+namespace DiscogsApiModels
 {
     public class DiscogsUserListDetail
     {

@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace ZyronatorCore.Models
+namespace DiscogsApiModels
 {
-    public class RootUserLists
+    public class DiscogsUserLists
     {
         public Pagination Pagination { get; set; }
         public List<List> Lists { get; set; }
