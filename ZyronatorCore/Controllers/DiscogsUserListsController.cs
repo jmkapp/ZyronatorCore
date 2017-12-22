@@ -82,9 +82,18 @@ namespace ZyronatorCore.Controllers
 
         // GET api/discogsuserlists/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public DiscogsUserListDetail Get(int id)
         {
-            return "value";
+            var request = new RestRequest();
+            request.Resource = "lists/{listId}";
+            request.AddUrlSegment("listId", id);
+
+            IRestResponse response = _restClient.Execute(request);
+
+            JsonDeserializer deserializer = new JsonDeserializer();
+            var listDetail = deserializer.Deserialize<DiscogsUserListDetail>(response);
+
+            return listDetail;
         }
 
         // POST api/discogsuserlists
