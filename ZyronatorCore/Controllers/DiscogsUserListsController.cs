@@ -1,12 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using ZyronatorCore.Settings;
-using Microsoft.Extensions.Options;
-using RestSharp;
-using System;
-using RestSharp.Deserializers;
 using Microsoft.AspNetCore.Cors;
-using DiscogsApiModels;
+using ZyronatorShared;
 
 namespace ZyronatorCore.Controllers
 {
@@ -14,86 +9,31 @@ namespace ZyronatorCore.Controllers
     [EnableCors("CorsGetPolicy")]
     public class DiscogsUserListsController : Controller
     {
-        private readonly RestClient _restClient;
-        private readonly string _defaultDiscogsUser;
+        private readonly ZyronatorRestClient _restClient;
 
-        public DiscogsUserListsController(IOptions<DiscogsApiSettings> discogsApiSettings)
+        public DiscogsUserListsController()
         {
-            _restClient = new RestClient
-            {
-                BaseUrl = new Uri(discogsApiSettings.Value.DefaultUri),
-                UserAgent = discogsApiSettings.Value.UserAgent
-            };
-
-            _defaultDiscogsUser = discogsApiSettings.Value.DefaultDiscogsUser;
+            _restClient = new ZyronatorRestClient();
         }
 
         // GET: api/discogsuserlists
         [HttpGet]
-        public IEnumerable<List> Get()
+        public IEnumerable<ZyronatorShared.DiscogsApiModels.List> Get()
         {
-            List<List> userLists = new List<List>();
+            DiscogsUserListFetcher listsFetcher = new DiscogsUserListFetcher(_restClient);
 
-            var request = new RestRequest();
-            request.Resource = "users/{username}/lists";
-            request.AddUrlSegment("username", _defaultDiscogsUser);
-
-            IRestResponse response = _restClient.Execute(request);
-
-            JsonDeserializer deserializer = new JsonDeserializer();
-            var rootUserLists = deserializer.Deserialize<DiscogsUserLists>(response);
-
-            userLists.AddRange(rootUserLists.Lists);
-
-            bool more = NextPage(rootUserLists);
-
-            while (more == true)
-            {
-                Uri nextPageUri = new Uri(rootUserLists.Pagination.Urls.Next);
-
-                _restClient.BaseUrl = nextPageUri;
-
-                request = new RestRequest();
-
-                response = _restClient.Execute(request);
-
-                rootUserLists = deserializer.Deserialize<DiscogsUserLists>(response);
-
-                userLists.AddRange(rootUserLists.Lists);
-
-                more = NextPage(rootUserLists);
-            }
+            List<ZyronatorShared.DiscogsApiModels.List> userLists = new List<ZyronatorShared.DiscogsApiModels.List>(listsFetcher.GetUserLists());
 
             return userLists;
         }
 
-        private bool NextPage(DiscogsUserLists rootUserLists)
-        {
-            int pages = rootUserLists.Pagination.Pages;
-            int page = rootUserLists.Pagination.Page;
-
-            if (page < pages)
-            {
-                return true;
-            }
-
-            return false;
-        }
-
         // GET api/discogsuserlists/5
         [HttpGet("{id}")]
-        public DiscogsUserListDetail Get(int id)
+        public ZyronatorShared.DiscogsApiModels.DiscogsUserListDetail Get(int id)
         {
-            var request = new RestRequest();
-            request.Resource = "lists/{listId}";
-            request.AddUrlSegment("listId", id);
+            DiscogsListDetailFetcher detailsFetcher = new DiscogsListDetailFetcher(_restClient);
 
-            IRestResponse response = _restClient.Execute(request);
-
-            JsonDeserializer deserializer = new JsonDeserializer();
-            var listDetail = deserializer.Deserialize<DiscogsUserListDetail>(response);
-
-            return listDetail;
+            return detailsFetcher.Get(id);
         }
 
         // POST api/discogsuserlists
